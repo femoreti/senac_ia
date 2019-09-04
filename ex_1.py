@@ -18,15 +18,15 @@ board = [
 ]
 
 
-def evaluate(state):
+def evaluate(p_board):
     """
     Function to heuristic evaluation of state.
-    :param state: the state of the current board
-    :return: +1 if the computer wins; -1 if the player wins; 0 draw
+    :param p_board: the state of the current board
+    :return: +1 para vitoria da IA; -1 para vitoria do jogador; 0 em caso de empate
     """
-    if wins(state, COMP):
+    if wins(p_board, COMP):
         score = +1
-    elif wins(state, player):
+    elif wins(p_board, player):
         score = -1
     else:
         score = 0
@@ -34,39 +34,36 @@ def evaluate(state):
     return score
 
 
-def wins(state, player):
+def wins(p_board, p_user):
     """
-    This function tests if a specific player wins. Possibilities:
-    * Three rows    [X X X] or [O O O]
-    * Three cols    [X X X] or [O O O]
-    * Two diagonals [X X X] or [O O O]
-    :param state: the state of the current board
-    :param player: a player or a computer
-    :return: True if the player wins
+    Metodo que verifica se eh um estado de vitoria
+    :param p_board: o estado do tabuleiro
+    :param p_user: o jogador ou a IA
+    :return: True se for vitoria
     """
     win_state = [
-        [state[0][0], state[0][1], state[0][2]],
-        [state[1][0], state[1][1], state[1][2]],
-        [state[2][0], state[2][1], state[2][2]],
-        [state[0][0], state[1][0], state[2][0]],
-        [state[0][1], state[1][1], state[2][1]],
-        [state[0][2], state[1][2], state[2][2]],
-        [state[0][0], state[1][1], state[2][2]],
-        [state[2][0], state[1][1], state[0][2]],
+        [p_board[0][0], p_board[0][1], p_board[0][2]],
+        [p_board[1][0], p_board[1][1], p_board[1][2]],
+        [p_board[2][0], p_board[2][1], p_board[2][2]],
+        [p_board[0][0], p_board[1][0], p_board[2][0]],
+        [p_board[0][1], p_board[1][1], p_board[2][1]],
+        [p_board[0][2], p_board[1][2], p_board[2][2]],
+        [p_board[0][0], p_board[1][1], p_board[2][2]],
+        [p_board[2][0], p_board[1][1], p_board[0][2]],
     ]
-    if [player, player, player] in win_state:
+    if [p_user, p_user, p_user] in win_state:
         return True
     else:
         return False
 
 
-def game_over(state):
+def game_over(p_board):
     """
-    This function test if the player or computer wins
-    :param state: the state of the current board
-    :return: True if the player or computer wins
+    Metodo que retorna quem venceu
+    :param p_board: o estado do tabuleiro
+    :return: True caso alguem tenha vencido
     """
-    return wins(state, player) or wins(state, COMP)
+    return wins(p_board, player) or wins(p_board, COMP)
 
 
 def empty_cells(state):
