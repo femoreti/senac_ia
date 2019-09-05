@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
 from math import inf as infinity
 from random import choice
 import platform
 import time
+import random
 from os import system
 
 """
@@ -18,15 +18,15 @@ board = [
 ]
 
 
-def evaluate(p_board):
+def OnGiveScore(p_board):
     """
-    Function to heuristic evaluation of state.
-    :param p_board: the state of the current board
+    Calcula uma heuristica para estado do jogo
+    :param p_board: o estado atual do jogo
     :return: +1 para vitoria da IA; -1 para vitoria do jogador; 0 em caso de empate
     """
-    if wins(p_board, COMP):
+    if OnCheckForWin(p_board, COMP):
         score = +1
-    elif wins(p_board, player):
+    elif OnCheckForWin(p_board, player):
         score = -1
     else:
         score = 0
@@ -34,7 +34,7 @@ def evaluate(p_board):
     return score
 
 
-def wins(p_board, p_user):
+def OnCheckForWin(p_board, p_user):
     """
     Metodo que verifica se eh um estado de vitoria
     :param p_board: o estado do tabuleiro
@@ -57,16 +57,16 @@ def wins(p_board, p_user):
         return False
 
 
-def game_over(p_board):
+def OnGameOver(p_board):
     """
     Metodo que retorna quem venceu
     :param p_board: o estado do tabuleiro
     :return: True caso alguem tenha vencido
     """
-    return wins(p_board, player) or wins(p_board, COMP)
+    return OnCheckForWin(p_board, player) or OnCheckForWin(p_board, COMP)
 
 
-def empty_cells(state):
+def OnGetEmptyCells(state):
     """
     Each empty cell will be added into cells' list
     :param state: the state of the current board
@@ -84,23 +84,17 @@ def empty_cells(state):
 
 def valid_move(x, y):
     """
-    A move is valid if the chosen cell is empty
-    :param x: X coordinate
-    :param y: Y coordinate
-    :return: True if the board[x][y] is empty
+    verifica se a celula escolhida esta vazia
     """
-    if [x, y] in empty_cells(board):
+    if [x, y] in OnGetEmptyCells(board):
         return True
     else:
         return False
 
 
-def set_move(x, y, player):
+def OnWriteOnBoard(x, y, player):
     """
-    Set the move on board, if the coordinates are valid
-    :param x: X coordinate
-    :param y: Y coordinate
-    :param player: the current player
+    se a celula estiver vazia realiza o movimento
     """
     if valid_move(x, y):
         board[x][y] = player
@@ -109,29 +103,28 @@ def set_move(x, y, player):
         return False
 
 
-def minimax(state, depth, player):
+def minimax(p_board, depth, player):
     """
-    AI function that choice the best move
-    :param state: current state of the board
-    :param depth: node index in the tree (0 <= depth <= 9),
-    but never nine in this case (see iaturn() function)
-    :param player: an player or a computer
-    :return: a list with [the best row, best col, best score]
+    Metodo minimax para avaliar os estados da IA
+    :param p_board: o estado do jogo atual
+    :param depth: index atual da arvore
+    :param player: Jogador ou IA
+    :return: uma lista contendo [melhor linha, melhor coluna, melhor score]
     """
     if player == COMP:
         best = [-1, -1, -infinity]
     else:
         best = [-1, -1, +infinity]
 
-    if depth == 0 or game_over(state):
-        score = evaluate(state)
+    if depth == 0 or OnGameOver(p_board):
+        score = OnGiveScore(p_board)
         return [-1, -1, score]
 
-    for cell in empty_cells(state):
+    for cell in OnGetEmptyCells(p_board):
         x, y = cell[0], cell[1]
-        state[x][y] = player
-        score = minimax(state, depth - 1, -player)
-        state[x][y] = 0
+        p_board[x][y] = player
+        score = minimax(p_board, depth - 1, -player)
+        p_board[x][y] = 0
         score[0], score[1] = x, y
 
         if player == COMP:
@@ -155,18 +148,18 @@ def ClearConsole():
         system('clear')
 
 
-def print_board(p_board, c_choice, h_choice):
+def print_board(p_board, ia_letter, player_letter):
     """
     Desenha o jogo na tela
     :param p_board: tabuleiro
     """
 
     chars = {
-        -1: h_choice,
-        +1: c_choice,
+        -1: player_letter,
+        +1: ia_letter,
         0: ' '
     }
-    str_line = '---------------'
+    str_line = '==============='
 
     print('\n' + str_line)
     for row in p_board:
@@ -176,21 +169,15 @@ def print_board(p_board, c_choice, h_choice):
         print('\n' + str_line)
 
 
-def ai_turn(c_choice, h_choice):
-    """
-    It calls the minimax function if the depth < 9,
-    else it choices a random coordinate.
-    :param c_choice: computer's choice X or O
-    :param h_choice: player's choice X or O
-    :return:
-    """
-    depth = len(empty_cells(board))
-    if depth == 0 or game_over(board):
+def OnIATurn(ia_letter, player_letter):
+
+    depth = len(OnGetEmptyCells(board))
+    if depth == 0 or OnGameOver(board):
         return
 
     ClearConsole()
-    print(f'Computer turn [{c_choice}]')
-    print_board(board, c_choice, h_choice)
+    print(f'Vez da IA [{ia_letter}]')
+    print_board(board, ia_letter, player_letter)
 
     if depth == 9:
         x = choice([0, 1, 2])
@@ -199,109 +186,97 @@ def ai_turn(c_choice, h_choice):
         move = minimax(board, depth, COMP)
         x, y = move[0], move[1]
 
-    set_move(x, y, COMP)
+    OnWriteOnBoard(x, y, COMP)
     time.sleep(1)
 
 
-def player_turn(c_choice, h_choice):
-    """
-    The player plays choosing a valid move.
-    :param c_choice: computer's choice X or O
-    :param h_choice: player's choice X or O
-    :return:
-    """
-    depth = len(empty_cells(board))
-    if depth == 0 or game_over(board):
+def OnPlayerTurn(ia_letter, player_letter):
+    depth = len(OnGetEmptyCells(board))
+    if depth == 0 or OnGameOver(board):
         return
 
-    # Dictionary of valid moves
+    # cria dicionario com movimentos validos
     move = -1
-    moves = {
+    boardCells = {
         1: [0, 0], 2: [0, 1], 3: [0, 2],
         4: [1, 0], 5: [1, 1], 6: [1, 2],
         7: [2, 0], 8: [2, 1], 9: [2, 2],
     }
 
     ClearConsole()
-    print(f'turno do jogador [{h_choice}]')
-    print_board(board, c_choice, h_choice)
+    print(f'turno do jogador [{player_letter}]')
+    print_board(board, ia_letter, player_letter) #desenha o tabuleiro escrevendo os caracteres preenchidos com X ou O
 
     while move < 1 or move > 9:
         try:
-            move = int(input('Use numpad (1..9): '))
-            coord = moves[move]
-            can_move = set_move(coord[0], coord[1], player)
+            move = int(input('Digite um valor de 1 a 9: '))
+            coord = boardCells[move]
+            can_move = OnWriteOnBoard(coord[0], coord[1], player)
 
             if not can_move:
-                print('Bad move')
+                print('Celula ja foi preenchida, tente outra')
                 move = -1
         except (EOFError, KeyboardInterrupt):
-            print('Bye')
+            ClearConsole()
             exit()
         except (KeyError, ValueError):
-            print('Bad choice')
+            print('Caracter invalido, Digite um valor de 1 a 9')
 
 
 def main():
-    """
-    Main function that calls all functions
-    """
-    ClearConsole()
-    h_choice = ''  # X or O
-    c_choice = ''  # X or O
-    first = ''  # if player is the first
 
-    # player chooses X or O to play
-    while h_choice != 'O' and h_choice != 'X':
+    ClearConsole()
+    player_letter = ''  # X or O
+    ia_letter = ''  # X or O
+    first = ''
+
+    #jogador escolhe sua letra
+    while player_letter != 'O' and player_letter != 'X':
         try:
             print('')
-            h_choice = input('Choose X or O\nChosen: ').upper()
+            player_letter = input('Choose X or O\nChosen: ').upper()
         except (EOFError, KeyboardInterrupt):
-            print('Bye')
             exit()
         except (KeyError, ValueError):
-            print('Bad choice')
+            print('Caractere invalido, use X ou O')
 
-    # Setting computer's choice
-    if h_choice == 'X':
-        c_choice = 'O'
+    # Determina os caracteres
+    if player_letter == 'X':
+        ia_letter = 'O'
     else:
-        c_choice = 'X'
+        ia_letter = 'X'
 
-    # player may starts first
+    # Define quem comeca primeiro
     ClearConsole()
-    while first != 'Y' and first != 'N':
-        try:
-            first = input('First to start?[y/n]: ').upper()
-        except (EOFError, KeyboardInterrupt):
-            print('Bye')
-            exit()
-        except (KeyError, ValueError):
-            print('Bad choice')
 
-    # Main loop of this game
-    while len(empty_cells(board)) > 0 and not game_over(board):
+    if random.randint(0, 1) == 1:
+         first = 'N'
+    else:
+         first = 'Y'    
+
+    # Execucao do jogo
+    while len(OnGetEmptyCells(board)) > 0 and not OnGameOver(board):
         if first == 'N':
-            ai_turn(c_choice, h_choice)
+            OnIATurn(ia_letter, player_letter)
             first = ''
 
-        player_turn(c_choice, h_choice)
-        ai_turn(c_choice, h_choice)
+        OnPlayerTurn(ia_letter, player_letter)
+        OnIATurn(ia_letter, player_letter)
 
-    # Game over message
-    if wins(board, player):
+    # Imprime mensagem de fim de jogo
+    if OnCheckForWin(board, player):
         ClearConsole()
-        print(f'Sua vez [{h_choice}]')
-        print_board(board, c_choice, h_choice)
+        print(f'Sua vez [{player_letter}]')
+        print_board(board, ia_letter, player_letter)
         print('Vitória, Voce ganhou!')
-    elif wins(board, COMP):
+    elif OnCheckForWin(board, COMP):
         ClearConsole()
-        print(f'Vez da IA [{c_choice}]')
-        print_board(board, c_choice, h_choice)
+        print(f'Vez da IA [{ia_letter}]')
+        print_board(board, ia_letter, player_letter)
         print('Derrota, a IA ganhou!')
     else:
         ClearConsole()
-        print_board(board, c_choice, h_choice)
+        print_board(board, ia_letter, player_letter)
         print('Empate!')
 
     exit()
