@@ -17,23 +17,6 @@ board = [
     [0, 0, 0],
 ]
 
-
-def OnGiveScore(p_board):
-    """
-    Calcula uma heuristica para estado do jogo
-    :param p_board: o estado atual do jogo
-    :return: +1 para vitoria da IA; -1 para vitoria do jogador; 0 em caso de empate
-    """
-    if OnCheckForWin(p_board, COMP):
-        score = +1
-    elif OnCheckForWin(p_board, player):
-        score = -1
-    else:
-        score = 0
-
-    return score
-
-
 def OnCheckForWin(p_board, p_user):
     """
     Metodo que verifica se eh um estado de vitoria
@@ -123,7 +106,9 @@ def minimax(p_board, depth, player):
     for cell in OnGetEmptyCells(p_board):
         x, y = cell[0], cell[1]
         p_board[x][y] = player
+
         score = minimax(p_board, depth - 1, -player)
+
         p_board[x][y] = 0
         score[0], score[1] = x, y
 
@@ -147,6 +132,20 @@ def ClearConsole():
     else:
         system('clear')
 
+def OnGiveScore(p_board):
+    """
+    Calcula uma heuristica para estado do jogo
+    :param p_board: o estado atual do jogo
+    :return: +1 para vitoria da IA; -1 para vitoria do jogador; 0 em caso de empate
+    """
+    if OnCheckForWin(p_board, COMP):
+        score = +1
+    elif OnCheckForWin(p_board, player):
+        score = -1
+    else:
+        score = 0
+
+    return score
 
 def print_board(p_board, ia_letter, player_letter):
     """
@@ -194,6 +193,8 @@ def OnPlayerTurn(ia_letter, player_letter):
     depth = len(OnGetEmptyCells(board))
     if depth == 0 or OnGameOver(board):
         return
+    
+    ClearConsole()
 
     # cria dicionario com movimentos validos
     move = -1
@@ -202,8 +203,7 @@ def OnPlayerTurn(ia_letter, player_letter):
         4: [1, 0], 5: [1, 1], 6: [1, 2],
         7: [2, 0], 8: [2, 1], 9: [2, 2],
     }
-
-    ClearConsole()
+    
     print(f'turno do jogador [{player_letter}]')
     print_board(board, ia_letter, player_letter) #desenha o tabuleiro escrevendo os caracteres preenchidos com X ou O
 
@@ -224,7 +224,6 @@ def OnPlayerTurn(ia_letter, player_letter):
 
 
 def main():
-
     ClearConsole()
     player_letter = ''  # X or O
     ia_letter = ''  # X or O
@@ -234,7 +233,7 @@ def main():
     while player_letter != 'O' and player_letter != 'X':
         try:
             print('')
-            player_letter = input('Choose X or O\nChosen: ').upper()
+            player_letter = input('Escolha X ou O\nEscolheu: ').upper()
         except (EOFError, KeyboardInterrupt):
             exit()
         except (KeyError, ValueError):
@@ -250,9 +249,9 @@ def main():
     ClearConsole()
 
     if random.randint(0, 1) == 1:
-         first = 'N'
+        first = 'N'
     else:
-         first = 'Y'    
+        first = 'Y'    
 
     # Execucao do jogo
     while len(OnGetEmptyCells(board)) > 0 and not OnGameOver(board):
@@ -268,16 +267,16 @@ def main():
         ClearConsole()
         print(f'Sua vez [{player_letter}]')
         print_board(board, ia_letter, player_letter)
-        print('Vitória, Voce ganhou!')
+        print('Vitória, Voce ganhou!\n')
     elif OnCheckForWin(board, COMP):
         ClearConsole()
         print(f'Vez da IA [{ia_letter}]')
         print_board(board, ia_letter, player_letter)
-        print('Derrota, a IA ganhou!')
+        print('Derrota, a IA ganhou!\n')
     else:
         ClearConsole()
         print_board(board, ia_letter, player_letter)
-        print('Empate!')
+        print('Empate!\n')
 
     exit()
 
