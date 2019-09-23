@@ -16,7 +16,7 @@ class AirTrafficConstraint(Constraint[str, str]):
         return assignment[self.place1] != assignment[self.place2]
 
 if __name__ == "__main__":
-    variables: List[str] = ["FORTALEZA", "SAO PAULO", "BELO HORIZONTE", "RIO DE JANEIRO", "ESPIRITO SANTO"] 
+    variables: List[str] = ["FORTALEZA", "SAO PAULO", "BELO HORIZONTE", "RIO DE JANEIRO", "SALVADOR"] 
     domains: Dict[str, List[str]] = {}
     for variable in variables:
         domains[variable] = ["red", "green"]
@@ -28,8 +28,8 @@ if __name__ == "__main__":
     csp.add_constraint(AirTrafficConstraint("BELO HORIZONTE", "SAO PAULO"))
     csp.add_constraint(AirTrafficConstraint("SAO PAULO", "RIO DE JANEIRO"))
     csp.add_constraint(AirTrafficConstraint("RIO DE JANEIRO", "SAO PAULO"))
-    csp.add_constraint(AirTrafficConstraint("RIO DE JANEIRO", "ESPIRITO SANTO"))
-    csp.add_constraint(AirTrafficConstraint("ESPIRITO SANTO", "RIO DE JANEIRO"))
+    csp.add_constraint(AirTrafficConstraint("RIO DE JANEIRO", "SALVADOR"))
+    csp.add_constraint(AirTrafficConstraint("SALVADOR", "RIO DE JANEIRO"))
 
 solution: Optional[Dict[str, str]] = csp.backtracking_search()
 if solution is None:
