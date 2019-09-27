@@ -26,8 +26,7 @@ class NaoPodeAdjConstraint(Constraint[str, str]):
         # yet possible for their colors to be conflicting
         if self.place1 not in assignment or self.place2 not in assignment:
             return True
-        # check the color assigned to place1 is not the same as the # color assigned to place2
-        return assignment[self.place1] != assignment[self.place2]
+        return assignment[self.place1] != assignment[self.place2] and (int(assignment[self.place1]) + 1) != int(assignment[self.place2]) and (int(assignment[self.place1]) - 1) != int(assignment[self.place2])
 
 class MesmaJaulaConstraint(Constraint[str, str]):
     def __init__(self, place1: str, place2: str) -> None:
